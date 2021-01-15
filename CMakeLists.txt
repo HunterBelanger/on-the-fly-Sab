@@ -39,7 +39,6 @@ target_compile_features(panglos PRIVATE cxx_std_17)
 target_compile_options(panglos PRIVATE -W -Wall -Wextra -Wpedantic -Weffc++)
 target_compile_options(panglos PRIVATE $<$<CONFIG:DEBUG>:-g>)
 target_compile_options(panglos PRIVATE $<$<CONFIG:RELEASE>:-O2>)
-target_compile_options(panglos PRIVATE $<$<BOOL:PNDL_GO_FASTER>:-Ofast -ffast-math>)
 
 # Link dependencies
 target_link_libraries(panglos INTERFACE interpolation

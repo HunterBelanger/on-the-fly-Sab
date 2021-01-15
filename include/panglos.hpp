@@ -45,9 +45,6 @@ class Panglos {
     std::vector<double> beta_grid_;
     std::vector<double> beta_cdf_grid_;
     std::vector<double> alpha_cdf_grid_;
-
-    // Boltzmann Constant
-    static constexpr double kb = 8.617333262e-5;
 };
 
 #endif
