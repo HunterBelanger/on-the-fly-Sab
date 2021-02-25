@@ -5,7 +5,6 @@
 
 // Include logging library so that errors or warnings can be written,
 // should integration or evaluation be attempted for invalid values.
-
 class Tabular2D {
   public:
     Tabular2D(); // Will take x and y in, and default value for all data elements

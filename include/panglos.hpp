@@ -2,10 +2,18 @@
 #define PANGLOS_H
 
 #include <vector>
+#include <memory>
+
+// Include ONLY this file !! Otherwise compilation will take forever !
+#include <ENDFtk/file/7.hpp>
+using namespace njoy;
+
+class Sab;
+class Tabular2D;
 
 class Panglos {
   public:
-    Panglos();
+    Panglos(ENDFtk::file::Type<7>& mf7);
     ~Panglos() = default;
 
     //==========================================================================
@@ -18,7 +26,7 @@ class Panglos {
     //==========================================================================
     
     //==========================================================================
-    // Getter and Setter Method for Sortage Grids
+    // Getter and Setter Methods for Sortage Grids
     void energy_grid(const std::vector<double>& egrid);
     const std::vector<double>& energy_grid() const;
     
@@ -35,10 +43,18 @@ class Panglos {
     void beta_max(double bmax);
 
   private:
-    double beta_max_; // Max energy transfer value to use (20 is used by default in Andrew's paper)
+    ENDFtk::file::Type<7> mf7;
+    
+    // Max energy transfer value to use (20 is used by default in Andrew's paper)
+    double beta_max_;
 
     // Grids along which Sab, PDF, and CDF tables are stored
-    std::vector<double> temperature_; // [k]
+    std::vector<double> temps_; // [k]
+    std::vector<std::unique_ptr<Sab>> tsls_;
+    std::vector<std::unique_ptr<Tabular2D>> alpha_pdfs_;
+    std::vector<std::unique_ptr<Tabular2D>> alpha_cdfs_;
+    std::vector<std::unique_ptr<Tabular2D>> beta_pdfs_;
+    std::vector<std::unique_ptr<Tabular2D>> beta_cdfs_;
 
     // Grids for storage of output
     std::vector<double> energy_grid_;

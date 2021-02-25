@@ -24,7 +24,9 @@ endif()
 # Compile Options
 ########################################################################
 # Create panglos library target
-add_library(panglos STATIC src/panglos.cpp)
+add_library(panglos STATIC src/panglos.cpp
+                           src/default_grids.cpp
+)
 
 # Add public interface includes directory
 target_include_directories(panglos PUBLIC 
@@ -36,13 +38,13 @@ target_include_directories(panglos PUBLIC
 target_compile_features(panglos PRIVATE cxx_std_17)
 
 # Set compile options for library
-target_compile_options(panglos PRIVATE -W -Wall -Wextra -Wpedantic -Weffc++)
+target_compile_options(panglos PRIVATE -W -Wall -Wextra -Wpedantic)
 target_compile_options(panglos PRIVATE $<$<CONFIG:DEBUG>:-g>)
 target_compile_options(panglos PRIVATE $<$<CONFIG:RELEASE>:-O2>)
 
 # Link dependencies
-target_link_libraries(panglos INTERFACE interpolation
-                              INTERFACE ENDFtk
+target_link_libraries(panglos PUBLIC interpolation
+                              PUBLIC ENDFtk
                               INTERFACE GSL
 )
 

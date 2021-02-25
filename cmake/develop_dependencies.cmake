@@ -6,13 +6,13 @@ include( FetchContent )
 #######################################################################
 
 FetchContent_Declare(interpolation
-    GIT_REPOSITORY https://github.com/njoy/interpolation
-    GIT_TAG        2a76934a148bf379ab594f6cdd2cdf4c8c28e447
+    GIT_REPOSITORY https://github.com/HunterBelanger/interpolation
+    GIT_TAG        9710c077477315617cceceda6f3995bc90def3df
 )
 
 FetchContent_Declare(ENDFtk
     GIT_REPOSITORY https://github.com/njoy/ENDFtk
-    GIT_TAG        v0.1.0
+    GIT_TAG        origin/develop
 )
 
 FetchContent_Declare(GSL
