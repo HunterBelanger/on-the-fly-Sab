@@ -27,40 +27,40 @@ class Panglos {
     
     //==========================================================================
     // Getter and Setter Methods for Sortage Grids
-    void energy_grid(const std::vector<double>& egrid);
-    const std::vector<double>& energy_grid() const;
+    void energyGrid(const std::vector<double>& egrid);
+    const std::vector<double>& energyGrid() const;
     
-    void beta_grid(const std::vector<double>& bgrid);
-    const std::vector<double>& beta_grid() const;
+    void betaGrid(const std::vector<double>& bgrid);
+    const std::vector<double>& betaGrid() const;
 
-    void beta_cdf_grid(const std::vector<double>& bcgrid);
-    const std::vector<double>& beta_cdf_grid() const;
+    void betaCDFGrid(const std::vector<double>& bcgrid);
+    const std::vector<double>& betaCDFGrid() const;
     
-    void alpha_cdf_grid(const std::vector<double>& acgrid);
-    const std::vector<double>& alpha_cdf_grid() const;
+    void alphaCDFGrid(const std::vector<double>& acgrid);
+    const std::vector<double>& alphaCDFGrid() const;
 
-    double beta_max() const;
-    void beta_max(double bmax);
+    double maxEnergyTransfer() const;
+    void maxEnergyTransfer(double bmax);
 
   private:
     ENDFtk::file::Type<7> mf7;
     
     // Max energy transfer value to use (20 is used by default in Andrew's paper)
-    double beta_max_;
+    double maxEnergyTransfer_;
 
     // Grids along which Sab, PDF, and CDF tables are stored
     std::vector<double> temps_; // [k]
-    std::vector<std::unique_ptr<Sab>> tsls_;
-    std::vector<std::unique_ptr<Tabular2D>> alpha_pdfs_;
-    std::vector<std::unique_ptr<Tabular2D>> alpha_cdfs_;
-    std::vector<std::unique_ptr<Tabular2D>> beta_pdfs_;
-    std::vector<std::unique_ptr<Tabular2D>> beta_cdfs_;
+    std::vector<std::unique_ptr<Sab>> TSLs_;
+    std::vector<std::unique_ptr<Tabular2D>> alphaPDFs_;
+    std::vector<std::unique_ptr<Tabular2D>> alphaCDFs_;
+    std::vector<std::unique_ptr<Tabular2D>> betaPDFs_;
+    std::vector<std::unique_ptr<Tabular2D>> betaCDFs_;
 
     // Grids for storage of output
-    std::vector<double> energy_grid_;
-    std::vector<double> beta_grid_;
-    std::vector<double> beta_cdf_grid_;
-    std::vector<double> alpha_cdf_grid_;
+    std::vector<double> energyGrid_;
+    std::vector<double> betaGrid_;
+    std::vector<double> betaCDFGrid_;
+    std::vector<double> alphaCDFGrid_;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include <vector>
 
 // Energy Grid from NJOY2016, to use in default constructor, in units of eV
-std::vector<double> default_energy_grid = {
+std::vector<double> defaultEnergyGrid = {
   1.e-5, 1.78e-5, 2.5e-5, 3.5e-5, 5.0e-5, 7.0e-5, 1.e-4, 1.26e-4, 1.6e-4,
   2.0e-4, .000253, .000297, .000350, .00042, .000506, .000615, .00075e0,
   .00087, .001012, .00123, .0015, .0018, .00203, .002277, .0026, .003, .0035,
@@ -17,7 +17,7 @@ std::vector<double> default_energy_grid = {
 };
 
 // CDF grid used by Pavlou and Ji in their first paper [1].
-std::vector<double> default_cdf_grid = {
+std::vector<double> defaultCDFGrid = {
   0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.225, 0.25, 0.275, 0.3,
   0.325, 0.35, 0.375, 0.4, 0.425, 0.45, 0.475, 0.5, 0.525, 0.55, 0.575, 0.6,
   0.625, 0.65, 0.675, 0.7, 0.725, 0.75, 0.775, 0.8, 0.825, 0.85, 0.875, 0.9,

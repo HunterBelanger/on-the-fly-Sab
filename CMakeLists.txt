@@ -24,8 +24,8 @@ endif()
 # Compile Options
 ########################################################################
 # Create panglos library target
-add_library(panglos STATIC src/panglos.cpp
-                           src/default_grids.cpp
+add_library(panglos STATIC src/Panglos.cpp
+                           src/defaultGrids.cpp
 )
 
 # Add public interface includes directory
