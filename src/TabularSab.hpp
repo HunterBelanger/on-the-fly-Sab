@@ -32,11 +32,13 @@ public:
 
   double operator()(double a, double b) const override final;
   double integrateAlpha(double aLow, double aHi, double b) const override final;
+  double integrateAlphaExpBeta(double aLow, double aHi, double bLow, double bHi) const override final;
 
   bool symmetric() const;
 
 private:
   bool symmetric_;
+  double temperature_;
   double effTemperature_;
   std::vector<double> beta_;
   std::vector<double> alpha_;

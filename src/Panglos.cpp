@@ -9,7 +9,7 @@ extern std::vector<double> defaultCDFGrid;
  
 
 Panglos::Panglos(ENDFtk::file::Type<7>& mf7): mf7(mf7),
-                                              maxEnergyTransfer_(20.),
+                                              maxBeta_(20.),
                                               temps_(),
                                               TSLs_(),
                                               alphaPDFs_(),
@@ -57,10 +57,10 @@ const std::vector<double>& Panglos::alphaCDFGrid() const {
   return this->alphaCDFGrid_;
 }
 
-void Panglos::maxEnergyTransfer(double bmax) {
-  this->maxEnergyTransfer_ = bmax;
+void Panglos::maxBeta(double bmax) {
+  this->maxBeta_ = bmax;
 }
 
-double Panglos::maxEnergyTransfer() const {
-  return this->maxEnergyTransfer_;
+double Panglos::maxBeta() const {
+  return this->maxBeta_;
 }

@@ -39,14 +39,16 @@ public:
   void alphaCDFGrid(const std::vector<double>& acgrid);
   const std::vector<double>& alphaCDFGrid() const;
 
-  double maxEnergyTransfer() const;
-  void maxEnergyTransfer(double bmax);
+  //============================================================================
+  // Getter and Setter Methods for max value in beta integration
+  double maxBeta() const;
+  void maxBeta(double bmax);
 
 private:
   ENDFtk::file::Type<7> mf7;
   
   // Max energy transfer value to use (20 is used by default in Andrew's paper)
-  double maxEnergyTransfer_;
+  double maxBeta_;
 
   // Grids along which Sab, PDF, and CDF tables are stored
   std::vector<double> temps_; // [k]
