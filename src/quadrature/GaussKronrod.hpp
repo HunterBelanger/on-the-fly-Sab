@@ -47,6 +47,9 @@ struct GaussKronrodQuadrature {
       }
     }
 
+    glIntegral *= 0.5*(xHi - xLow);
+    gkIntegral *= 0.5*(xHi - xLow);
+
     // Calculate the error
     double err = std::abs(glIntegral - gkIntegral) / gkIntegral;
 
