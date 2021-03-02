@@ -1,9 +1,73 @@
-#include "GaussKronrod.hpp"
+#ifndef GUASSKRONROD_H
+#define GAUSSKRONROD_H
+
+#include <cmath>
+#include <functional>
+#include <vector>
+
+template<size_t NK>
+struct GaussKronrodQuadrature {
+  static std::pair<double, double> integrate(std::function<double(double)> func,
+                                             double xLow, double xHi) {
+    // First calculate integral using the Gauss-Legendre quadrature
+    double glIntegral = 0.;
+    double gkIntegral = 0;
+    for(size_t i = 0; i < glWeights.size(); i++) {
+      double func_x = 0.;
+
+      // Get the positive point
+      double xi = abscissae[i];
+      double x = 0.5*(xHi - xLow)*xi + 0.5*(xLow + xHi);
+      func_x = func(x);
+      glIntegral += func_x * glWeights[i];
+      gkIntegral += func_x * weights[i];
+
+      // Get the negative point
+      if(xi != 0.) {
+        xi *= -1.;
+        double x = 0.5*(xHi - xLow)*xi + 0.5*(xLow + xHi);
+        func_x = func(x);
+        glIntegral += func_x * glWeights[i];
+        gkIntegral += func_x * weights[i];
+      }
+    }
+
+    // Now calculate integral using the Gauss-Kronrod quadrature
+    // Get contribution from Gauss-Kronrod points
+    for(size_t i = glWeights.size(); i < weights.size(); i++) {
+      // Get the positive point
+      double xi = abscissae[i];
+      double x = 0.5*(xHi - xLow)*xi + 0.5*(xLow + xHi);
+      gkIntegral += func(x) * weights[i];
+
+      // Get the negative point
+      if(xi != 0.) {
+        xi *= -1.;
+        double x = 0.5*(xHi - xLow)*xi + 0.5*(xLow + xHi);
+        gkIntegral += func(x) * weights[i];
+      }
+    }
+
+    glIntegral *= 0.5*(xHi - xLow);
+    gkIntegral *= 0.5*(xHi - xLow);
+
+    // Calculate the error
+    double err = std::abs(glIntegral - gkIntegral) / gkIntegral;
+
+    return {gkIntegral, err};
+  }
+
+  static constexpr size_t order() {return 3*NK + 1;}
+
+  static const std::vector<double> abscissae;
+  static const std::vector<double> weights;
+  static const std::vector<double> glWeights;
+};
 
 //==============================================================================
 // Implementation for Gauss-Legendre 7 Kronrod 15
 template<>
-const std::vector<double> GaussKronrodQuadrature< 7, 15>::glWeights = {
+const std::vector<double> GaussKronrodQuadrature<15>::glWeights = {
   4.179591836734693877551020408163265e-01,
   3.818300505051189449503697754889751e-01,
   2.797053914892766679014677714237796e-01,
@@ -11,7 +75,7 @@ const std::vector<double> GaussKronrodQuadrature< 7, 15>::glWeights = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature< 7, 15>::abscissae = {
+const std::vector<double> GaussKronrodQuadrature<15>::abscissae = {
   0.000000000000000000000000000000000e+00,
   4.058451513773971669066064120769615e-01,
   7.415311855993944398638647732807884e-01,
@@ -24,7 +88,7 @@ const std::vector<double> GaussKronrodQuadrature< 7, 15>::abscissae = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature< 7, 15>::weights = {
+const std::vector<double> GaussKronrodQuadrature<15>::weights = {
   2.094821410847278280129991748917143e-01,
   1.903505780647854099132564024210137e-01,
   1.406532597155259187451895905102379e-01,
@@ -39,7 +103,7 @@ const std::vector<double> GaussKronrodQuadrature< 7, 15>::weights = {
 //==============================================================================
 // Implementation for Gauss-Legendre 10 Kronrod 21
 template<>
-const std::vector<double> GaussKronrodQuadrature<10, 21>::glWeights = {
+const std::vector<double> GaussKronrodQuadrature<21>::glWeights = {
   2.955242247147528701738929946513383e-01,
   2.692667193099963550912269215694694e-01,
   2.190863625159820439955349342281632e-01,
@@ -48,7 +112,7 @@ const std::vector<double> GaussKronrodQuadrature<10, 21>::glWeights = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<10, 21>::abscissae = {
+const std::vector<double> GaussKronrodQuadrature<21>::abscissae = {
   1.488743389816312108848260011297200e-01,
   4.333953941292471907992659431657842e-01,
   6.794095682990244062343273651148736e-01,
@@ -64,7 +128,7 @@ const std::vector<double> GaussKronrodQuadrature<10, 21>::abscissae = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<10, 21>::weights = {
+const std::vector<double> GaussKronrodQuadrature<21>::weights = {
   1.477391049013384913748415159720680e-01,
   1.347092173114733259280540017717068e-01,
   1.093871588022976418992105903258050e-01,
@@ -82,7 +146,7 @@ const std::vector<double> GaussKronrodQuadrature<10, 21>::weights = {
 //==============================================================================
 // Implementation for Gauss-Legendre 15 Kronrod 31
 template<>
-const std::vector<double> GaussKronrodQuadrature<15, 31>::glWeights = {
+const std::vector<double> GaussKronrodQuadrature<31>::glWeights = {
   2.025782419255612728806201999675193e-01,
   1.984314853271115764561183264438393e-01,
   1.861610000155622110268005618664228e-01,
@@ -94,7 +158,7 @@ const std::vector<double> GaussKronrodQuadrature<15, 31>::glWeights = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<15, 31>::abscissae = {
+const std::vector<double> GaussKronrodQuadrature<31>::abscissae = {
   0.000000000000000000000000000000000e+00,
   2.011940939974345223006283033945962e-01,
   3.941513470775633698972073709810455e-01,
@@ -115,7 +179,7 @@ const std::vector<double> GaussKronrodQuadrature<15, 31>::abscissae = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<15, 31>::weights = {
+const std::vector<double> GaussKronrodQuadrature<31>::weights = {
   1.013300070147915490173747927674925e-01,
   9.917359872179195933239317348460313e-02,
   9.312659817082532122548687274734572e-02,
@@ -138,7 +202,7 @@ const std::vector<double> GaussKronrodQuadrature<15, 31>::weights = {
 //==============================================================================
 // Implementation for Gauss-Legendre 20 Kronrod 41
 template<>
-const std::vector<double> GaussKronrodQuadrature<20, 41>::glWeights = {
+const std::vector<double> GaussKronrodQuadrature<41>::glWeights = {
   1.527533871307258506980843319550976e-01,
   1.491729864726037467878287370019694e-01,
   1.420961093183820513292983250671649e-01,
@@ -152,7 +216,7 @@ const std::vector<double> GaussKronrodQuadrature<20, 41>::glWeights = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<20, 41>::abscissae = {
+const std::vector<double> GaussKronrodQuadrature<41>::abscissae = {
   7.652652113349733375464040939883821e-02,
   2.277858511416450780804961953685746e-01,
   3.737060887154195606725481770249272e-01,
@@ -178,7 +242,7 @@ const std::vector<double> GaussKronrodQuadrature<20, 41>::abscissae = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<20, 41>::weights = {
+const std::vector<double> GaussKronrodQuadrature<41>::weights = {
   7.637786767208073670550283503806100e-02,
   7.458287540049918898658141836248753e-02,
   7.105442355344406830579036172321017e-02,
@@ -206,7 +270,7 @@ const std::vector<double> GaussKronrodQuadrature<20, 41>::weights = {
 //==============================================================================
 // Implementation for Gauss-Legendre 25 Kronrod 51
 template<>
-const std::vector<double> GaussKronrodQuadrature<25, 51>::glWeights = {
+const std::vector<double> GaussKronrodQuadrature<51>::glWeights = {
   1.231760537267154512039028730790501e-01,
   1.222424429903100416889595189458515e-01,
   1.194557635357847722281781265129010e-01,
@@ -223,7 +287,7 @@ const std::vector<double> GaussKronrodQuadrature<25, 51>::glWeights = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<25, 51>::abscissae = {
+const std::vector<double> GaussKronrodQuadrature<51>::abscissae = {
   0.000000000000000000000000000000000e+00,
   1.228646926107103963873598188080368e-01,
   2.438668837209884320451903627974516e-01,
@@ -254,7 +318,7 @@ const std::vector<double> GaussKronrodQuadrature<25, 51>::abscissae = {
 };
 
 template<>
-const std::vector<double> GaussKronrodQuadrature<25, 51>::weights = {
+const std::vector<double> GaussKronrodQuadrature<51>::weights = {
   6.158081806783293507875982424006455e-02,
   6.112850971705304830585903041629271e-02,
   5.972034032417405997909929193256185e-02,
@@ -283,3 +347,98 @@ const std::vector<double> GaussKronrodQuadrature<25, 51>::weights = {
   9.473973386174151607207710523655324e-03,
   1.987383892330315926507851882843410e-03
 };
+
+//==============================================================================
+// Implementation for Gauss-Legendre 30 Kronrod 61
+template<>
+const std::vector<double> GaussKronrodQuadrature<61>::glWeights = {
+  1.028526528935588403412856367054150e-01,
+  1.017623897484055045964289521685540e-01,
+  9.959342058679526706278028210356948e-02,
+  9.636873717464425963946862635180987e-02,
+  9.212252223778612871763270708761877e-02,
+  8.689978720108297980238753071512570e-02,
+  8.075589522942021535469493846052973e-02,
+  7.375597473770520626824385002219073e-02,
+  6.597422988218049512812851511596236e-02,
+  5.749315621761906648172168940205613e-02,
+  4.840267283059405290293814042280752e-02,
+  3.879919256962704959680193644634769e-02,
+  2.878470788332336934971917961129204e-02,
+  1.846646831109095914230213191204727e-02,
+  7.968192496166605615465883474673622e-03
+};
+
+template<>
+const std::vector<double> GaussKronrodQuadrature<61>::abscissae = {
+  5.147184255531769583302521316672257e-02,
+  1.538699136085835469637946727432559e-01,
+  2.546369261678898464398051298178051e-01,
+  3.527047255308781134710372070893739e-01,
+  4.470337695380891767806099003228540e-01,
+  5.366241481420198992641697933110728e-01,
+  6.205261829892428611404775564311893e-01,
+  6.978504947933157969322923880266401e-01,
+  7.677774321048261949179773409745031e-01,
+  8.295657623827683974428981197325019e-01,
+  8.825605357920526815431164625302256e-01,
+  9.262000474292743258793242770804740e-01,
+  9.600218649683075122168710255817977e-01,
+  9.836681232797472099700325816056628e-01,
+  9.968934840746495402716300509186953e-01,
+//-----------------------------------------
+  0.000000000000000000000000000000000e+00,
+  1.028069379667370301470967513180006e-01,
+  2.045251166823098914389576710020247e-01,
+  3.040732022736250773726771071992566e-01,
+  4.004012548303943925354762115426606e-01,
+  4.924804678617785749936930612077088e-01,
+  5.793452358263616917560249321725405e-01,
+  6.600610641266269613700536681492708e-01,
+  7.337900624532268047261711313695276e-01,
+  7.997278358218390830136689423226832e-01,
+  8.572052335460610989586585106589439e-01,
+  9.055733076999077985465225589259583e-01,
+  9.443744447485599794158313240374391e-01,
+  9.731163225011262683746938684237069e-01,
+  9.916309968704045948586283661094857e-01,
+  9.994844100504906375713258957058108e-01
+};
+
+template<>
+const std::vector<double> GaussKronrodQuadrature<61>::weights = {
+  5.142612853745902593386287921578126e-02,
+  5.088179589874960649229747304980469e-02,
+  4.979568342707420635781156937994233e-02,
+  4.818586175708712914077949229830459e-02,
+  4.605923827100698811627173555937358e-02,
+  4.345253970135606931683172811707326e-02,
+  4.037453895153595911199527975246811e-02,
+  3.688236465182122922391106561713597e-02,
+  3.298144705748372603181419101685393e-02,
+  2.875404876504129284397878535433421e-02,
+  2.419116207808060136568637072523203e-02,
+  1.941414119394238117340895105012846e-02,
+  1.436972950704580481245143244358001e-02,
+  9.273279659517763428441146892024360e-03,
+  3.890461127099884051267201844515503e-03,
+//-----------------------------------------
+  5.149472942945156755834043364709931e-02,
+  5.122154784925877217065628260494421e-02,
+  5.040592140278234684089308565358503e-02,
+  4.905543455502977888752816536723817e-02,
+  4.718554656929915394526147818109949e-02,
+  4.481480013316266319235555161672324e-02,
+  4.196981021516424614714754128596976e-02,
+  3.867894562472759295034865153228105e-02,
+  3.497933802806002413749967073146788e-02,
+  3.090725756238776247288425294309227e-02,
+  2.650995488233310161060170933507541e-02,
+  2.182803582160919229716748573833899e-02,
+  1.692088918905327262757228942032209e-02,
+  1.182301525349634174223289885325059e-02,
+  6.630703915931292173319826369750168e-03,
+  1.389013698677007624551591226759700e-03
+};
+
+#endif
