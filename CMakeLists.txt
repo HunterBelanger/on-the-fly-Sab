@@ -26,7 +26,6 @@ endif()
 # Create panglos library target
 add_library(panglos STATIC src/Panglos.cpp
                            src/defaultGrids.cpp
-                           src/quadrature/GaussKronrod.cpp
 )
 
 # Add public interface includes directory

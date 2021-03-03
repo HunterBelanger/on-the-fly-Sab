@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Sab.hpp"
+#include "ShortCollisionTimeSab.hpp"
 #include "Tab1.hpp"
 
 class TabularSab : public Sab {
@@ -40,6 +41,7 @@ private:
   bool symmetric_;
   double temperature_;
   double effTemperature_;
+  ShortCollisionTimeSab SCTSab;
   std::vector<double> beta_;
   std::vector<double> alpha_;
   std::vector<Beta> data_;

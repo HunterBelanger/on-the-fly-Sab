@@ -6,14 +6,14 @@
 
 // Include ONLY this file !! Otherwise compilation will take forever !
 #include <ENDFtk/file/7.hpp>
-using namespace njoy;
+using namespace njoy::ENDFtk;
 
 class Sab;
 class Tabular2D;
 
 class Panglos {
 public:
-  Panglos(ENDFtk::file::Type<7>& mf7);
+  Panglos(file::Type<7>& mf7);
   ~Panglos() = default;
 
   //==========================================================================
@@ -45,17 +45,22 @@ public:
   void maxBeta(double bmax);
 
 private:
-  ENDFtk::file::Type<7> mf7;
+  file::Type<7> mf7;
+
+  int LAT;
+  int LASYM;
+  int LLN;
   
+  // Atomic Weight Ratio of the nuclide being treated
+  double AWR;
+ 
   // Max energy transfer value to use (20 is used by default in Andrew's paper)
   double maxBeta_;
 
   // Grids along which Sab, PDF, and CDF tables are stored
   std::vector<double> temps_; // [k]
   std::vector<std::unique_ptr<Sab>> TSLs_;
-  std::vector<std::unique_ptr<Tabular2D>> alphaPDFs_;
   std::vector<std::unique_ptr<Tabular2D>> alphaCDFs_;
-  std::vector<std::unique_ptr<Tabular2D>> betaPDFs_;
   std::vector<std::unique_ptr<Tabular2D>> betaCDFs_;
 
   // Grids for storage of output
@@ -63,6 +68,13 @@ private:
   std::vector<double> betaGrid_;
   std::vector<double> betaCDFGrid_;
   std::vector<double> alphaCDFGrid_;
+
+  // Private Methods
+  void initializeScatteringLaws();
+
+  void initializeAnalyticScatteringLaws();
+
+  void initializeTabularScatteringLaws();
 };
 
 #endif
