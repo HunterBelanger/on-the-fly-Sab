@@ -46,6 +46,7 @@ public:
 
 private:
   file::Type<7> mf7;
+  section::Type<7,4> mt4;
 
   int LAT;
   int LASYM;
@@ -59,9 +60,9 @@ private:
 
   // Grids along which Sab, PDF, and CDF tables are stored
   std::vector<double> temps_; // [k]
-  std::vector<std::unique_ptr<Sab>> TSLs_;
+  /*std::vector<std::unique_ptr<Sab>> TSLs_;
   std::vector<std::unique_ptr<Tabular2D>> alphaCDFs_;
-  std::vector<std::unique_ptr<Tabular2D>> betaCDFs_;
+  std::vector<std::unique_ptr<Tabular2D>> betaCDFs_;*/
 
   // Grids for storage of output
   std::vector<double> energyGrid_;
@@ -72,9 +73,10 @@ private:
   // Private Methods
   void initializeScatteringLaws();
 
-  void initializeAnalyticScatteringLaws();
+  void initializeAnalyticScatteringLaws(section::Type<7,4>::AnalyticalFunctions& tsl);
 
-  void initializeTabularScatteringLaws();
+  void initializeTabularScatteringLaws(section::Type<7,4>::TabulatedFunctions& tsl);
+
 };
 
 #endif

@@ -1,40 +1,42 @@
 #include <Panglos.hpp>
 
+#include <iostream>
+
 #include <ENDFtk/details.hpp>
 
 // Private header files
 #include "Sab.hpp"
 #include "Tabular2D.hpp"
+#include "Tab1.hpp"
 
 extern std::vector<double> defaultEnergyGrid;
 extern std::vector<double> defaultCDFGrid;
 extern std::vector<double> defaultTempertures;
 
 Panglos::Panglos(file::Type<7>& mf7): mf7(mf7),
+                                      mt4(mf7.section(4_c)),
                                       LAT(),
                                       LASYM(),
                                       LLN(),
                                       AWR(),
                                       maxBeta_(20.),
                                       temps_(),
-                                      TSLs_(),
-                                      alphaCDFs_(),
-                                      betaCDFs_(),
+                                      //TSLs_(),
+                                      //alphaCDFs_(),
+                                      //betaCDFs_(),
                                       energyGrid_(defaultEnergyGrid),
                                       betaGrid_(),
                                       betaCDFGrid_(defaultCDFGrid),
                                       alphaCDFGrid_(defaultCDFGrid) {
 
-  // No idea what the '_c' is for, but it doesn't work without it
-  section::Type<7, 4> mt4 = this->mf7.section(4_c);
-  this->AWR = mt4.AWR();
-  this->LAT = mt4.LAT();
-  this->LASYM = mt4.LASYM();
+  this->AWR = this->mt4.AWR();
+  this->LAT = this->mt4.LAT();
+  this->LASYM = this->mt4.LASYM();
 
-  section::Type<7,4>::ScatteringLawConstants slConstants = mt4.constants();
+  section::Type<7,4>::ScatteringLawConstants slConstants = this->mt4.constants();
   this->LLN = slConstants.LLN();
 
-  // Check to see if using an analytic function or not
+  initializeScatteringLaws();
 }
 
 //==============================================================================
@@ -83,17 +85,25 @@ double Panglos::maxBeta() const {
 // Private Initialization Methods
 
 void Panglos::initializeScatteringLaws() {
+  // Get the actual scattering law, which is provided as a variant of the
+  // analytic or tabular types
+  auto scatteringLaw = this->mt4.scatteringLaw();
+
+  // See if the variant holds a tabulated or analytic Sab
+  if(std::holds_alternative<section::Type<7,4>::TabulatedFunctions>(scatteringLaw)) {
+    initializeTabularScatteringLaws(std::get<section::Type<7,4>::TabulatedFunctions>(scatteringLaw));
+  } else {
+    // Variant holds an analytic law for primary nuclide
+    initializeAnalyticScatteringLaws(std::get<section::Type<7,4>::AnalyticalFunctions>(scatteringLaw));
+  }
+  
+}
+
+void Panglos::initializeAnalyticScatteringLaws(section::Type<7,4>::AnalyticalFunctions& /*tsl*/) {
 
 }
 
-void Panglos::initializeAnalyticScatteringLaws() {
-  // Since we are using analytic laws, no temperature grid is provided. As such
-  // we use the default temperature grid.
-  temps_ = defaultTempertures;
-
-}
-
-void Panglos::initializeTabularScatteringLaws() {
+void Panglos::initializeTabularScatteringLaws(section::Type<7,4>::TabulatedFunctions& tsl) {
   // If LLN is set, then ln(S) is stored, and not S ! When this is the case,
   // must exponentiate all of the values so that integrals are calculated
   // correctly. In addition, one must also change the interpolation rule !!
@@ -103,4 +113,25 @@ void Panglos::initializeTabularScatteringLaws() {
   // LinLog -> LinLin
   // I don't know what to do with other interpolation rules yet...
   // Maybe I will just leave them unchanged, so linear in S ?
+  
+  // Get list of all provided temperatures from the scattering law
+  auto lawsForAllTemps = tsl.S();
+  temps_ = lawsForAllTemps[0].T();
+
+  section::Type<7,4>::EffectiveTemperature rawEffectiveTemp = mt4.principalEffectiveTemperature();
+
+  // Get Tab1 for the effective temperature
+  Tab1 effectiveTemp = makeTab1(rawEffectiveTemp.boundaries(), rawEffectiveTemp.interpolants(),
+                                     rawEffectiveTemp.TMOD(), rawEffectiveTemp.TEFF());
+
+  // Go through all temps and build each scatteriing law
+  for(const auto& temp : temps_) {
+    std::cout << " Mod Temp = " << temp << ", Eff Temp = " << effectiveTemp(temp) << std::endl;
+
+    
+  }
+
+  std::cout << " Temp integral = " << effectiveTemp.integrate(temps_.front(), temps_.back()) << std::endl;
+
 }
+

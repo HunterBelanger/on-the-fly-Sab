@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <ENDFtk/section/7.hpp>
+
 #include "Sab.hpp"
 #include "ShortCollisionTimeSab.hpp"
 #include "Tab1.hpp"
@@ -11,7 +13,7 @@ class TabularSab : public Sab {
 private:
   class Beta {
   public:
-    Beta();
+    Beta(Tab1 Sa, double b): beta_(b), Sa_(Sa) {}
     ~Beta() = default;
 
     double operator()(double a) const {
@@ -28,7 +30,7 @@ private:
   };
 
 public:
-  TabularSab(); // This will have to take the file, and the temperature index
+  TabularSab(section::Type<7,4>::TabulatedFunctions& TSL, size_t indxT, double temp, double effTemp, int lat, int lasym, int lln);
   ~TabularSab() = default;
 
   double operator()(double a, double b) const override final;

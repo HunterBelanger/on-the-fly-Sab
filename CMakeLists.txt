@@ -48,6 +48,13 @@ target_link_libraries(panglos PUBLIC interpolation
                               INTERFACE GSL
 )
 
+add_executable(Panglos src/main.cpp)
+target_include_directories(Panglos PUBLIC include)
+target_compile_features(Panglos PRIVATE cxx_std_17)
+target_compile_options(Panglos PRIVATE -W -Wall -Wextra -Wpedantic)
+target_link_libraries(Panglos PUBLIC panglos
+                              PUBLIC ENDFtk
+)
 ########################################################################
 # Test Application
 ########################################################################
