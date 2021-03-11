@@ -20,7 +20,10 @@ public:
     return this->indefiniteIntegralAlpha(aHi, b) - this->indefiniteIntegralAlpha(aLow, b);
   }
 
-  double integrateAlphaExpBeta(double aLow, double aHi, double bLow, double bHi) const override final;
+  double integrateAlphaExpBeta(double aLow, double aHi, double bLow, double bHi) const override final {
+    // TODO
+    return 0.;
+  }
 
 private:
   double R;

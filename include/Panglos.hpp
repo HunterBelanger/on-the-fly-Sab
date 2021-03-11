@@ -14,7 +14,7 @@ class Tabular2D;
 class Panglos {
 public:
   Panglos(file::Type<7>& mf7);
-  ~Panglos() = default;
+  ~Panglos();
 
   //==========================================================================
   // No copy, move, or assignment constructors !
@@ -60,8 +60,8 @@ private:
 
   // Grids along which Sab, PDF, and CDF tables are stored
   std::vector<double> temps_; // [k]
-  /*std::vector<std::unique_ptr<Sab>> TSLs_;
-  std::vector<std::unique_ptr<Tabular2D>> alphaCDFs_;
+  std::vector<std::unique_ptr<Sab>> TSLs_;
+  /*std::vector<std::unique_ptr<Tabular2D>> alphaCDFs_;
   std::vector<std::unique_ptr<Tabular2D>> betaCDFs_;*/
 
   // Grids for storage of output

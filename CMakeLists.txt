@@ -26,6 +26,7 @@ endif()
 # Create panglos library target
 add_library(panglos STATIC src/Panglos.cpp
                            src/defaultGrids.cpp
+                           src/TabularSab.cpp
 )
 
 # Add public interface includes directory

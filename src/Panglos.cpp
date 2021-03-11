@@ -6,7 +6,7 @@
 
 // Private header files
 #include "Sab.hpp"
-#include "Tabular2D.hpp"
+#include "TabularSab.hpp"
 #include "Tab1.hpp"
 
 extern std::vector<double> defaultEnergyGrid;
@@ -21,7 +21,7 @@ Panglos::Panglos(file::Type<7>& mf7): mf7(mf7),
                                       AWR(),
                                       maxBeta_(20.),
                                       temps_(),
-                                      //TSLs_(),
+                                      TSLs_(),
                                       //alphaCDFs_(),
                                       //betaCDFs_(),
                                       energyGrid_(defaultEnergyGrid),
@@ -38,6 +38,9 @@ Panglos::Panglos(file::Type<7>& mf7): mf7(mf7),
 
   initializeScatteringLaws();
 }
+
+// Must put destructor here in cpp due to PIMPL Sab in header
+Panglos::~Panglos() {}
 
 //==============================================================================
 // Getter and Setter Methods
@@ -125,13 +128,14 @@ void Panglos::initializeTabularScatteringLaws(section::Type<7,4>::TabulatedFunct
                                      rawEffectiveTemp.TMOD(), rawEffectiveTemp.TEFF());
 
   // Go through all temps and build each scatteriing law
+  size_t Tindx = 0;
   for(const auto& temp : temps_) {
     std::cout << " Mod Temp = " << temp << ", Eff Temp = " << effectiveTemp(temp) << std::endl;
 
-    
+    double effTemp = effectiveTemp(temp);
+
+    TSLs_.emplace_back(std::make_unique<TabularSab>(tsl, Tindx, temp, effTemp, LAT, LASYM, LLN));
+    Tindx++; 
   }
 
-  std::cout << " Temp integral = " << effectiveTemp.integrate(temps_.front(), temps_.back()) << std::endl;
-
 }
-

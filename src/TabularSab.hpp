@@ -33,11 +33,20 @@ public:
   TabularSab(section::Type<7,4>::TabulatedFunctions& TSL, size_t indxT, double temp, double effTemp, int lat, int lasym, int lln);
   ~TabularSab() = default;
 
-  double operator()(double a, double b) const override final;
-  double integrateAlpha(double aLow, double aHi, double b) const override final;
-  double integrateAlphaExpBeta(double aLow, double aHi, double bLow, double bHi) const override final;
+  double operator()(double a, double b) const override final {
+    // TODO
+    return 0.;
+  }
+  double integrateAlpha(double aLow, double aHi, double b) const override final {
+    // TODO
+    return 0.;
+  }
+  double integrateAlphaExpBeta(double aLow, double aHi, double bLow, double bHi) const override final {
+    // TODO
+    return 0.;
+  }
 
-  bool symmetric() const;
+  bool symmetric() const {return symmetric_;}
 
 private:
   bool symmetric_;
@@ -47,7 +56,10 @@ private:
   std::vector<double> beta_;
   std::vector<double> alpha_;
   std::vector<Beta> data_;
-  // TODO interpolation along beta
+  std::vector<long> interpolations_;
+
+  void fixData(std::vector<long>& bounds, std::vector<long>& interps,
+               std::vector<double>& y);
 };
 
 #endif

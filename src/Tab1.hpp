@@ -52,7 +52,7 @@ using Tab1 = Table<table::Vector<ENDFvariant>>;
 
 // Function to generate a Tab1 from the breakpoints, interpolations,
 // x array, and y array
-Tab1 makeTab1(LongRange breakpoints, LongRange interpolations, DoubleRange x, DoubleRange y) {
+inline Tab1 makeTab1(LongRange breakpoints, LongRange interpolations, DoubleRange x, DoubleRange y) {
   std::vector<ENDFvariant> core;
 
   auto brkSize = ranges::size(breakpoints);
