@@ -107,16 +107,6 @@ void Panglos::initializeAnalyticScatteringLaws(section::Type<7,4>::AnalyticalFun
 }
 
 void Panglos::initializeTabularScatteringLaws(section::Type<7,4>::TabulatedFunctions& tsl) {
-  // If LLN is set, then ln(S) is stored, and not S ! When this is the case,
-  // must exponentiate all of the values so that integrals are calculated
-  // correctly. In addition, one must also change the interpolation rule !!
-  // If LogLog was used for (a,ln(S)), then this becomes LogLin once
-  // exponentiated for (a,S) !!
-  // LogLog -> LogLin
-  // LinLog -> LinLin
-  // I don't know what to do with other interpolation rules yet...
-  // Maybe I will just leave them unchanged, so linear in S ?
-  
   // Get list of all provided temperatures from the scattering law
   auto lawsForAllTemps = tsl.S();
   temps_ = lawsForAllTemps[0].T();

@@ -44,23 +44,50 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
     }
   }
 
+  // Get the vector for the interpolations and boundaries along alpha, which is
+  // the same for each beta, and temperatureA
+  std::vector<long> alphaInterpsCommon = scatteringFuncs.front().interpolants();
+  std::vector<long> alphaBoundsCommon = scatteringFuncs.front().boundaries();
+
+  // If ln(S) is stored, we need to change the interpolation rules.
+  // ATTENTION ! The way the ENDF manual describes this is wrong !
+  // Written bellow are the proper transformations.
+  // LinLog(3) -> LogLog(5)
+  // LinLin(2) -> LogLin(4)
+  // I don't know what to do with other interpolation rules yet...
+  // Maybe I will just leave them unchanged, so linear in S ?
+  if(lln == 1) {
+    for(auto& interp: alphaInterpsCommon) {
+      if(interp == 3) interp = 5;
+      else if(interp == 2) interp = 4;
+    }
+  }
+
   // Must now construct the Beta instance for each value of beta
   for(size_t b = 0; b < beta_.size(); b++) {
     std::vector<double> S = scatteringFuncs[b].S()[indxT];
 
-    // Get the vector for the interpolations and boundaries along alpha, which is
-    // the same for each beta, and temperatureA
-    std::vector<long> alphaInterps = scatteringFuncs.front().interpolants();
-    std::vector<long> alphaBounds = scatteringFuncs.front().boundaries();
+    std::vector<long> alphaInterps = alphaInterpsCommon;
+    std::vector<long> alphaBounds = alphaBoundsCommon;
 
     // Make sure that alpha_ and S have the same size !
     if(alpha_.size() != S.size()) {
       throw std::runtime_error("Alpha Grid and S grid of different sizes");
     }
 
-    // If lln = 1, ln(S) is stored, and not S. We need to exponentiate
+    // If lln = 1, ln(S) is stored, and not S. We need to exponentiate.
+    // The interpolation rules were already changed above.
     if(lln == 1) {
-      for(auto& s : S) s = std::exp(s);
+      for(auto& s : S) {
+        if(s != 0.) {
+          s = std::exp(s);
+        } else if(s == 0.) {
+        // TODO what do I do with zero values in the evaluation ?!?!?!
+        // ENDF Manual says they should be large negative values, but
+        // is rather vague I feel.
+          s = -999.;
+        }
+      }
     }
 
     // Apparently it is necessary to check for zeros in the Sa function, because
