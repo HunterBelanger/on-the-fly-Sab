@@ -108,12 +108,6 @@ void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps, 
   // interpolation type (y is log)
   if((bounds.size() == 1) && ((interps[0] == 4) || (interps[0] == 5))) {
 
-    // Lambda to find a boundary in the y grid
-    auto isBoundary = [](double y1, double y2) {
-      if(((y1 == 0.) && (y2 != 0.)) || ((y1 != 0.) && (y2 == 0.))) return true;
-      return false;
-    };
-
     long origInterp = interps.front();
 
     bounds.clear();
