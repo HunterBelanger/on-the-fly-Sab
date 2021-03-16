@@ -58,6 +58,7 @@ inline Tab1 makeTab1(LongRange breakpoints, LongRange interpolations, DoubleRang
   auto brkSize = ranges::size(breakpoints);
   size_t low = 0;
   size_t hi = 0;
+  
   for(size_t i = 0; i < brkSize; i++) {
     int law = *(interpolations.begin()+i);
     hi = *(breakpoints.begin()+i);
@@ -89,7 +90,7 @@ inline Tab1 makeTab1(LongRange breakpoints, LongRange interpolations, DoubleRang
   }
 
   Tab1 table(std::move(core));
-  
+
   return table;
 }
 

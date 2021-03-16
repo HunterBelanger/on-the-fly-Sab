@@ -56,10 +56,14 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
   // LinLin(2) -> LogLin(4)
   // I don't know what to do with other interpolation rules yet...
   // Maybe I will just leave them unchanged, so linear in S ?
+  // In theory, I don't think an evaluator would be allowed to use
+  // one of the other interpolation rules when storing ln(S), as they
+  // would have the same issue. I should probably add a check here ?
   if(lln == 1) {
     for(auto& interp: alphaInterpsCommon) {
       if(interp == 3) interp = 5;
       else if(interp == 2) interp = 4;
+      else throw std::runtime_error("Cannot have LLN with given interp law");
     }
   }
 
@@ -79,14 +83,7 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
     // The interpolation rules were already changed above.
     if(lln == 1) {
       for(auto& s : S) {
-        if(s != 0.) {
-          s = std::exp(s);
-        } else if(s == 0.) {
-        // TODO what do I do with zero values in the evaluation ?!?!?!
-        // ENDF Manual says they should be large negative values, but
-        // is rather vague I feel.
-          s = -999.;
-        }
+        s = std::exp(s);
       }
     }
 
@@ -106,8 +103,54 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
   }
 }
 
-void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps,
-                         std::vector<double>& y) {
+void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps, std::vector<double>& y) {
+  // Only need to fix data is one region is given, and the region is a Log-x
+  // interpolation type (y is log)
+  if((bounds.size() == 1) && ((interps[0] == 4) || (interps[0] == 5))) {
 
-  // TODO
+    // Lambda to find a boundary in the y grid
+    auto isBoundary = [](double y1, double y2) {
+      if(((y1 == 0.) && (y2 != 0.)) || ((y1 != 0.) && (y2 == 0.))) return true;
+      return false;
+    };
+
+    long origInterp = interps.front();
+
+    bounds.clear();
+    interps.clear();
+
+    for(long i = 0; i < static_cast<long>(y.size())-1; i++) {
+      if(y[i] == 0. && y[i+1] != 0.) {
+        if(i < static_cast<long>(y.size())-2 && y[i+2] == 0.) {
+          // Here we have a segment where
+          // [ ..., 0, X, 0, ...]
+          //        i, i+1, i+2
+          // In this case, since we only have a single non-zero value, we
+          // keep the linear inerpolation and don't add a break point but
+          // we do need to advance i by 2
+          i += 2;
+        } else {
+          // Here we have a segment where
+          // [ ...., 0, X, Y, ...]
+          // In this case, we record the break point !
+          bounds.push_back(i+2); 
+          interps.push_back(2); // Ending a lin-lin region
+        }
+      } else if(y[i] != 0. && y[i+1] == 0.) {
+        // Here we have a segment
+        // [ ...., X, Y, 0, ...] 
+        bounds.push_back(i+1);
+        interps.push_back(origInterp);
+      }
+    }
+    
+    bounds.push_back(static_cast<long>(y.size()));
+    if(y[y.size()-2] == 0. || y[y.size()-1] == 0.) interps.push_back(2);
+    else interps.push_back(origInterp);
+    
+  }
+
+  if(!std::is_sorted(bounds.begin(), bounds.end())) {
+    throw std::runtime_error("Bad fixing of data");
+  }
 }
