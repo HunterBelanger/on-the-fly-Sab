@@ -1,5 +1,5 @@
-#include <Panglos.hpp>
 #include <ENDFtk.hpp>
+#include <Panglos.hpp>
 
 using namespace njoy::ENDFtk;
 
@@ -7,8 +7,7 @@ using namespace njoy::ENDFtk;
 #include <string>
 
 int main(int argc, char** argv) {
-  
-  if(argc != 3) {
+  if (argc != 3) {
     std::cout << " ERROR: Must provide 2 arguments.\n";
     return 1;
   }

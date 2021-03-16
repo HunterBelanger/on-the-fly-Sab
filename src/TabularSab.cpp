@@ -1,18 +1,21 @@
 #include "TabularSab.hpp"
+
 #include "constants.hpp"
 
-using ScatteringFunction = section::Type<7,4>::TabulatedFunctions::ScatteringFunction;
+using ScatteringFunction =
+    section::Type<7, 4>::TabulatedFunctions::ScatteringFunction;
 
-TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
-                       size_t indxT, double temp, double effTemp,
-                       int lat, int lasym, int lln): symmetric_(lasym == 0),
-                                                     temperature_(temp),
-                                                     effTemperature_(effTemp),
-                                                     SCTSab(temp, effTemp),
-                                                     beta_(),
-                                                     alpha_(),
-                                                     data_(),
-                                                     interpolations_() {
+TabularSab::TabularSab(section::Type<7, 4>::TabulatedFunctions& TSL,
+                       size_t indxT, double temp, double effTemp, int lat,
+                       int lasym, int lln)
+    : symmetric_(lasym == 0),
+      temperature_(temp),
+      effTemperature_(effTemp),
+      SCTSab(temp, effTemp),
+      beta_(),
+      alpha_(),
+      data_(),
+      interpolations_() {
   //===========
   // Get the grid of beta values
   beta_ = TSL.betas();
@@ -23,8 +26,9 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
   std::vector<ScatteringFunction> scatteringFuncs = TSL.S();
 
   // Make sure that beta_ and scatteringFuncs have the same size !
-  if(beta_.size() != scatteringFuncs.size()) {
-    throw std::runtime_error("Beta Grid and ScatteringFunctions of different sizes");
+  if (beta_.size() != scatteringFuncs.size()) {
+    throw std::runtime_error(
+        "Beta Grid and ScatteringFunctions of different sizes");
   }
 
   // The alpha grid is the same for all values of beta and T. We can then
@@ -34,12 +38,12 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
   // If lat = 1, then the alpha and beta grids need to be converted to
   // the true temperature, as they have been stored for room temp
   // T = 0.0253 eV.
-  if(lat == 1) {
+  if (lat == 1) {
     double Troom = 0.0253 / kb;
-    for(auto& beta : beta_) {
+    for (auto& beta : beta_) {
       beta *= (temperature_ / Troom);
     }
-    for(auto& alpha : alpha_) {
+    for (auto& alpha : alpha_) {
       alpha *= (temperature_ / Troom);
     }
   }
@@ -59,30 +63,33 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
   // In theory, I don't think an evaluator would be allowed to use
   // one of the other interpolation rules when storing ln(S), as they
   // would have the same issue. I should probably add a check here ?
-  if(lln == 1) {
-    for(auto& interp: alphaInterpsCommon) {
-      if(interp == 3) interp = 5;
-      else if(interp == 2) interp = 4;
-      else throw std::runtime_error("Cannot have LLN with given interp law");
+  if (lln == 1) {
+    for (auto& interp : alphaInterpsCommon) {
+      if (interp == 3)
+        interp = 5;
+      else if (interp == 2)
+        interp = 4;
+      else
+        throw std::runtime_error("Cannot have LLN with given interp law");
     }
   }
 
   // Must now construct the Beta instance for each value of beta
-  for(size_t b = 0; b < beta_.size(); b++) {
+  for (size_t b = 0; b < beta_.size(); b++) {
     std::vector<double> S = scatteringFuncs[b].S()[indxT];
 
     std::vector<long> alphaInterps = alphaInterpsCommon;
     std::vector<long> alphaBounds = alphaBoundsCommon;
 
     // Make sure that alpha_ and S have the same size !
-    if(alpha_.size() != S.size()) {
+    if (alpha_.size() != S.size()) {
       throw std::runtime_error("Alpha Grid and S grid of different sizes");
     }
 
     // If lln = 1, ln(S) is stored, and not S. We need to exponentiate.
     // The interpolation rules were already changed above.
-    if(lln == 1) {
-      for(auto& s : S) {
+    if (lln == 1) {
+      for (auto& s : S) {
         s = std::exp(s);
       }
     }
@@ -93,29 +100,28 @@ TabularSab::TabularSab(section::Type<7,4>::TabulatedFunctions& TSL,
     fixData(alphaBounds, alphaInterps, S);
 
     // Create Tab1 for Sa
-    Tab1 Sa = makeTab1({alphaBounds.begin(), alphaBounds.end()}, 
+    Tab1 Sa = makeTab1({alphaBounds.begin(), alphaBounds.end()},
                        {alphaInterps.begin(), alphaInterps.end()},
-                       {alpha_.begin(), alpha_.end()},
-                       {S.begin(), S.end()});
+                       {alpha_.begin(), alpha_.end()}, {S.begin(), S.end()});
 
     // Create beta instance
     data_.emplace_back(Beta(Sa, beta_[b]));
   }
 }
 
-void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps, std::vector<double>& y) {
+void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps,
+                         std::vector<double>& y) {
   // Only need to fix data is one region is given, and the region is a Log-x
   // interpolation type (y is log)
-  if((bounds.size() == 1) && ((interps[0] == 4) || (interps[0] == 5))) {
-
+  if ((bounds.size() == 1) && ((interps[0] == 4) || (interps[0] == 5))) {
     long origInterp = interps.front();
 
     bounds.clear();
     interps.clear();
 
-    for(long i = 0; i < static_cast<long>(y.size())-1; i++) {
-      if(y[i] == 0. && y[i+1] != 0.) {
-        if(i < static_cast<long>(y.size())-2 && y[i+2] == 0.) {
+    for (long i = 0; i < static_cast<long>(y.size()) - 1; i++) {
+      if (y[i] == 0. && y[i + 1] != 0.) {
+        if (i < static_cast<long>(y.size()) - 2 && y[i + 2] == 0.) {
           // Here we have a segment where
           // [ ..., 0, X, 0, ...]
           //        i, i+1, i+2
@@ -127,24 +133,25 @@ void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps, 
           // Here we have a segment where
           // [ ...., 0, X, Y, ...]
           // In this case, we record the break point !
-          bounds.push_back(i+2); 
-          interps.push_back(2); // Ending a lin-lin region
+          bounds.push_back(i + 2);
+          interps.push_back(2);  // Ending a lin-lin region
         }
-      } else if(y[i] != 0. && y[i+1] == 0.) {
+      } else if (y[i] != 0. && y[i + 1] == 0.) {
         // Here we have a segment
-        // [ ...., X, Y, 0, ...] 
-        bounds.push_back(i+1);
+        // [ ...., X, Y, 0, ...]
+        bounds.push_back(i + 1);
         interps.push_back(origInterp);
       }
     }
-    
+
     bounds.push_back(static_cast<long>(y.size()));
-    if(y[y.size()-2] == 0. || y[y.size()-1] == 0.) interps.push_back(2);
-    else interps.push_back(origInterp);
-    
+    if (y[y.size() - 2] == 0. || y[y.size() - 1] == 0.)
+      interps.push_back(2);
+    else
+      interps.push_back(origInterp);
   }
 
-  if(!std::is_sorted(bounds.begin(), bounds.end())) {
+  if (!std::is_sorted(bounds.begin(), bounds.end())) {
     throw std::runtime_error("Bad fixing of data");
   }
 }

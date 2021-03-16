@@ -6,8 +6,8 @@
 // Include logging library so that errors or warnings can be written,
 // should integration or evaluation be attempted for invalid values.
 class Tabular2D {
-public:
-  Tabular2D(); // Will take x and y in, and default value for all data elements
+ public:
+  Tabular2D();  // Will take x and y in, and default value for all data elements
   Tabular2D(size_t nx, size_t ny);
   // On construction, should assure that both x and y are sorted !
 
@@ -36,10 +36,10 @@ public:
   double yMin() const { return this->y_.front(); }
   double yMax() const { return this->y_.back(); }
 
-private:
+ private:
   std::vector<double> x_;
   std::vector<double> y_;
-  std::vector<double> data_; 
+  std::vector<double> data_;
 };
 
 #endif
