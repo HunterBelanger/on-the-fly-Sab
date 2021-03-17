@@ -1,4 +1,4 @@
-#include <ENDFtk/details.hpp>
+#include <boost/hana.hpp> // Needed for the _c literal for constructing mt4
 #include <Panglos.hpp>
 #include <iostream>
 

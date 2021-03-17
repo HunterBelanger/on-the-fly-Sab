@@ -26,5 +26,9 @@ int main(int argc, char** argv) {
 
   Panglos panglos(MF7);
 
+  std::string input = "";
+  std::cout << "Press any key to continue...\n";
+  std::cin >> input;
+
   return 0;
 }

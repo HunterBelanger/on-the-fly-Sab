@@ -77,7 +77,9 @@ TabularSab::TabularSab(section::Type<7, 4>::TabulatedFunctions& TSL,
   // Must now construct the Beta instance for each value of beta
   for (size_t b = 0; b < beta_.size(); b++) {
     std::vector<double> S = scatteringFuncs[b].S()[indxT];
-
+    
+    // Need to make copies of these two vectors as they typically need
+    // to be modified depending on the zeros in the fixData method.
     std::vector<long> alphaInterps = alphaInterpsCommon;
     std::vector<long> alphaBounds = alphaBoundsCommon;
 
@@ -104,8 +106,8 @@ TabularSab::TabularSab(section::Type<7, 4>::TabulatedFunctions& TSL,
                        {alphaInterps.begin(), alphaInterps.end()},
                        {alpha_.begin(), alpha_.end()}, {S.begin(), S.end()});
 
-    // Create beta instance
-    data_.emplace_back(Beta(Sa, beta_[b]));
+    // Save table to data
+    data_.push_back(Sa);
   }
 }
 
@@ -127,8 +129,8 @@ void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps,
           //        i, i+1, i+2
           // In this case, since we only have a single non-zero value, we
           // keep the linear inerpolation and don't add a break point but
-          // we do need to advance i by 2
-          i += 2;
+          // we do need to advance i by 1
+          i += 1;
         } else {
           // Here we have a segment where
           // [ ...., 0, X, Y, ...]
