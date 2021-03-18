@@ -24,7 +24,6 @@ class Panglos {
   Panglos& operator=(Panglos&&) = delete;
 
   //==========================================================================
-  
 
   //==========================================================================
   // Getter and Setter Methods for Sortage Grids

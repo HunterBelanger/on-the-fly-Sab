@@ -16,7 +16,7 @@ TabularSab::TabularSab(section::Type<7, 4>::TabulatedFunctions& TSL,
       alpha_(),
       data_(),
       interpolations_() {
-  //===========
+  //============================================================================
   // Get the grid of beta values
   beta_ = TSL.betas();
   // Get the interpolations between beta values
@@ -77,7 +77,7 @@ TabularSab::TabularSab(section::Type<7, 4>::TabulatedFunctions& TSL,
   // Must now construct the Beta instance for each value of beta
   for (size_t b = 0; b < beta_.size(); b++) {
     std::vector<double> S = scatteringFuncs[b].S()[indxT];
-    
+
     // Need to make copies of these two vectors as they typically need
     // to be modified depending on the zeros in the fixData method.
     std::vector<long> alphaInterps = alphaInterpsCommon;
@@ -125,8 +125,8 @@ void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps,
       if (y[i] == 0. && y[i + 1] != 0.) {
         if (i < static_cast<long>(y.size()) - 2 && y[i + 2] == 0.) {
           // Here we have a segment where
-          // [ ..., 0, X, 0, ...]
-          //        i, i+1, i+2
+          // [ ..., 0,  X,    0, ...]
+          //        i,  i+1,  i+2
           // In this case, since we only have a single non-zero value, we
           // keep the linear inerpolation and don't add a break point but
           // we do need to advance i by 1
@@ -146,11 +146,14 @@ void TabularSab::fixData(std::vector<long>& bounds, std::vector<long>& interps,
       }
     }
 
+    // Add the end interval info, which isn't treated by the
+    // for-loop above.
     bounds.push_back(static_cast<long>(y.size()));
-    if (y[y.size() - 2] == 0. || y[y.size() - 1] == 0.)
+    if (y[y.size() - 2] == 0. || y[y.size() - 1] == 0.) {
       interps.push_back(2);
-    else
+    } else {
       interps.push_back(origInterp);
+    }
   }
 
   if (!std::is_sorted(bounds.begin(), bounds.end())) {
