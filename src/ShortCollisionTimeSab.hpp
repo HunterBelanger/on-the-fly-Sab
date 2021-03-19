@@ -2,6 +2,7 @@
 #define SHORT_COLLISION_TIME_SAB_H
 
 #include "Sab.hpp"
+#include "GaussKronrod.hpp"
 #include "constants.hpp"
 
 class ShortCollisionTimeSab : public Sab {
@@ -24,8 +25,26 @@ class ShortCollisionTimeSab : public Sab {
 
   double integrateAlphaExpBeta(double aLow, double aHi, double bLow,
                                double bHi) const override final {
-    // TODO
-    return 0.;
+
+    // Integration along beta is performed using the Gauss-Kronrod quadrature
+    // while the alpha integration is still done analytically.
+
+    // This is the lambda which will be evaluated for each beta point in the
+    // quadrature durring integration.
+    auto expIntSa_at_b = [aLow, aHi, this](double b) {
+      return std::exp(-b/2.) * this->integrateAlpha(aLow, aHi, b);
+    };
+
+    // Get the quadrature. Using 61 points, which can perfectly integrate
+    // polynomials of up to order 184.
+    GaussKronrodQuadrature<61> GKQ61;
+
+    // The integral is returned as a pair of doubles. The first value is the
+    // estimate of the integral, while the second value is the upper limit of
+    // the error of the integral.
+    std::pair<double,double> integral = GKQ61.integrate(expIntSa_at_b, bLow, bHi);
+
+    return integral.first;
   }
 
  private:

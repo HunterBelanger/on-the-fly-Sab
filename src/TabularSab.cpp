@@ -65,12 +65,13 @@ TabularSab::TabularSab(section::Type<7, 4>::TabulatedFunctions& TSL,
   // would have the same issue. I should probably add a check here ?
   if (lln == 1) {
     for (auto& interp : alphaInterpsCommon) {
-      if (interp == 3)
+      if (interp == 3) {
         interp = 5;
-      else if (interp == 2)
+      } else if (interp == 2) {
         interp = 4;
-      else
-        throw std::runtime_error("Cannot have LLN with given interp law");
+      } else {
+        throw std::runtime_error("Cannot have LLN=1 with given interp law");
+      }
     }
   }
 

@@ -2,6 +2,7 @@
 #define TABULAR_SAB_H
 
 #include <ENDFtk/section/7.hpp>
+
 #include <vector>
 
 #include "Sab.hpp"
@@ -146,11 +147,58 @@ class TabularSab : public Sab {
 
   double integrateAlphaExpBeta(double aLow, double aHi, double bLow,
                                double bHi) const override final {
-    // TODO
-    return 0.;
+    bool flipped = (bLow > bHi);
+    if(flipped) {std::swap(bLow, bHi);}
+
+    double integral = 0.;
+
+    if ((bLow < beta_.front() && bHi < beta_.front()) ||
+        (bLow > beta_.back() && bHi > beta_.back()) ) {
+      integral += SCTSab.integrateAlphaExpBeta(aLow, aHi, bLow, bHi);
+      if(flipped) integral *= -1.;
+      return integral;
+    }
+
+    // Lower portion is outside of range
+    if (bLow < beta_.front()) {
+      integral += SCTSab.integrateAlphaExpBeta(aLow, aHi, bLow, beta_.front());
+      bLow = beta_.front();
+    }
+
+    // Upper portion is outside of range
+    if (bHi > beta_.back()) {
+      integral += SCTSab.integrateAlphaExpBeta(aLow, aHi, beta_.back(), bHi);
+      bHi = beta_.back();
+    }
+
+    // Get the middle range of the integral which is over the grid
+    
+    // This is the lambda which will be evaluated for each beta point in the
+    // quadrature durring integration.
+    auto expIntSa_at_b = [aLow, aHi, this](double b) {
+      return std::exp(-b/2.) * this->integrateAlpha(aLow, aHi, b);
+    };
+
+    // Get the quadrature. Using 61 points, which can perfectly integrate
+    // polynomials of up to order 184.
+    GaussKronrodQuadrature<61> GKQ61;
+
+    // The integral is returned as a pair of doubles. The first value is the
+    // estimate of the integral, while the second value is the upper limit of
+    // the error of the integral.
+    std::pair<double,double> middle_integral = GKQ61.integrate(expIntSa_at_b, bLow, bHi);
+    integral += middle_integral.first;
+
+
+    if(flipped) {integral *= -1.;}
+    return integral;
   }
 
   bool symmetric() const { return symmetric_; }
+
+  std::vector<double> alphaGrid() const {return alpha_;}
+
+  std::vector<double> betaGrid() const {return beta_;}
 
  private:
   bool symmetric_;

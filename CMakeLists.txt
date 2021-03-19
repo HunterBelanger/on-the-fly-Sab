@@ -27,6 +27,7 @@ endif()
 add_library(panglos STATIC src/Panglos.cpp
                            src/defaultGrids.cpp
                            src/TabularSab.cpp
+                           src/GaussKronrod.cpp
 )
 
 # Add public interface includes directory
